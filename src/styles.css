@@ -170,7 +170,7 @@
     color: var(--color-ink);
     font-family: var(--font-sans);
     background-image: radial-gradient(
-      var(--color-ink) 1px,
+      rgba(23, 25, 31, 0.09) 1px,
       transparent 1px
     );
     background-size: 20px 20px;
