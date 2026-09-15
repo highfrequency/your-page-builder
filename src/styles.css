@@ -19,6 +19,17 @@
  */
 
 @theme inline {
+  --font-sans: "Onest", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Unbounded", "Onest", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-paper: #f5f6f1;
+  --color-ink: #17191f;
+  --color-flame: #ff5a36;
+  --color-yellow: #ffd43b;
+  --color-blue: #4c6fff;
+  --color-green: #3ecf8e;
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -26,6 +37,7 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -141,4 +153,52 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
   }
+}
+
+/* ---------- AIONLY card: Playful Tech ---------- */
+:root {
+  --background: #f5f6f1;
+  --foreground: #17191f;
+  --card: #ffffff;
+  --card-foreground: #17191f;
+  --border: rgba(23, 25, 31, 0.14);
+}
+
+@layer base {
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    background-image: radial-gradient(
+      rgba(23, 25, 31, 0.09) 1px,
+      transparent 1px
+    );
+    background-size: 20px 20px;
+    background-position: 0 0;
+  }
+  body::before {
+    content: "";
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+  }
+}
+
+@utility panel {
+  background-color: #fff;
+  border: 2px solid var(--color-ink);
+  border-radius: 16px;
+  box-shadow: 3px 3px 0 var(--color-ink);
+}
+
+@utility marker-hl {
+  background: linear-gradient(
+    to top,
+    var(--color-yellow) 0%,
+    var(--color-yellow) 42%,
+    transparent 42%
+  );
+  padding: 0 2px;
 }
