@@ -30,7 +30,6 @@ import {
   Panel,
   Quote,
   SectionTitle,
-  SegmentedBar,
   StatRow,
   Tag,
 } from "@/components/card-ui";
@@ -555,8 +554,4 @@ function SectionNav() {
       </div>
     </nav>
   );
-}
-
-function _unusedIcons() {
-  return [SegmentedBar, Quote, MapIcon];
 }
