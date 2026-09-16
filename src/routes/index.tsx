@@ -266,7 +266,11 @@ function LandingPage() {
   useEffect(() => {
     const el = deckRef.current;
     if (!el) return;
-    el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2;
+    const center = () => {
+      el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2;
+    };
+    const id = requestAnimationFrame(() => requestAnimationFrame(center));
+    return () => cancelAnimationFrame(id);
   }, []);
 
   useEffect(() => {
@@ -317,7 +321,7 @@ function LandingPage() {
             <div className="relative z-10 -mb-7 flex justify-center px-6">
               <Cta className="w-full max-w-[320px]" />
             </div>
-            <div ref={deckRef} className="-mx-4 flex snap-x snap-mandatory items-center gap-3 overflow-x-auto px-[calc(50%-100px)] pt-4 pb-6 [scrollbar-width:none] sm:-mx-6 [&::-webkit-scrollbar]:hidden">
+            <div ref={deckRef} className="-mx-4 flex snap-x snap-proximity items-center gap-3 overflow-x-auto px-[calc(50%-100px)] pt-4 pb-6 [scrollbar-width:none] sm:-mx-6 [&::-webkit-scrollbar]:hidden">
               {DECK.map((c, i) => {
                 const rot = [-6, 0, 6, -4, 4][i];
                 const dy = [10, 0, 12, 6, 14][i];
