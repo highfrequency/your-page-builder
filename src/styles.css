@@ -193,6 +193,24 @@
   box-shadow: 3px 3px 0 var(--color-ink);
 }
 
+@utility stage {
+  background-color: #14151a;
+  color: var(--color-paper);
+  background-image: radial-gradient(
+    rgba(245, 246, 241, 0.07) 1px,
+    transparent 1px
+  );
+  background-size: 20px 20px;
+}
+
+@utility panel-dark {
+  background-color: #fff;
+  color: var(--color-ink);
+  border: 2px solid var(--color-ink);
+  border-radius: 16px;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.55);
+}
+
 @utility marker-hl {
   background: linear-gradient(
     to top,
