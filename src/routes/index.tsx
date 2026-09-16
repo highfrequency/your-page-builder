@@ -1,42 +1,31 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState, type ReactNode } from "react";
 
 import {
-  AvatarIcon,
-  BatteryIcon,
   BookIcon,
-  ChestIcon,
   CheckIcon,
-  CircuitBrainIcon,
   CrystalBallIcon,
-  DiceIcon,
   FlameIcon,
   HandshakeIcon,
   HeartsIcon,
-  LightningIcon,
   MagnifierIcon,
   MapIcon,
-  RadarIcon,
-  ScrollIcon,
   SpeechIcon,
   SplitMaskIcon,
   StarIcon,
 } from "@/components/pixel-icons";
 import {
   BlockHeader,
-  ColumnPair,
-  FlameBadge,
   List,
   Marker,
-  Panel,
   Quote,
-  SectionTitle,
+  SegmentedBar,
   StatRow,
-  Tag,
 } from "@/components/card-ui";
 
-const TITLE = "Hul — публічний AI-профіль | AIONLY";
+const TITLE = "AIONLY — AI-картка про тебе, зроблена твоїм AI";
 const DESCRIPTION =
-  "AI-картка Hul: архітектор запусків. Архетип-мікс, суперсила, мислення, мапа знань і кого шукає — усе помічено AI, з яким він говорить щодня.";
+  "Твій AI знає тебе краще за будь-яку анкету. AIONLY перетворює це на картку — сторінку-самопрезентацію, якою хочеться ділитися. Безкоштовно, ~4 хвилини.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -45,513 +34,521 @@ export const Route = createFileRoute("/")({
       { name: "description", content: DESCRIPTION },
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
-      { property: "og:type", content: "profile" },
+      { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: CardPage,
+  component: LandingPage,
 });
 
-const NAV = [
-  { i: "01", label: "хто я", id: "s01" },
-  { i: "02", label: "мислення", id: "s02" },
-  { i: "03", label: "вміння", id: "s03" },
-  { i: "04", label: "як зі мною", id: "s04" },
-  { i: "05", label: "кого шукаю", id: "s05" },
-  { i: "06", label: "епілог", id: "s06" },
+/* ---------- primitives ---------- */
+
+function WhitePanel({
+  children,
+  className = "",
+  style,
+}: {
+  children: ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  return (
+    <div className={`panel-dark p-5 ${className}`} style={style}>
+      {children}
+    </div>
+  );
+}
+
+function Cta({ className = "" }: { className?: string }) {
+  return (
+    <a
+      href="/start"
+      className={`font-display flex min-h-[52px] items-center justify-center rounded-full border-2 border-ink bg-paper px-6 py-3 text-center text-[15px] font-extrabold text-ink shadow-[4px_4px_0_rgba(0,0,0,.55)] transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${className}`}
+    >
+      Створити мою AI-картку
+    </a>
+  );
+}
+
+function StageTitle({ index, title }: { index: string; title: ReactNode }) {
+  return (
+    <div className="mb-5">
+      <div className="flex items-center gap-3">
+        <span className="font-mono text-xs font-bold text-flame">{index}</span>
+        <span className="h-0.5 flex-1 bg-paper/15" />
+      </div>
+      <h2 className="font-display mt-2 text-2xl leading-tight font-extrabold text-paper sm:text-3xl">
+        {title}
+      </h2>
+    </div>
+  );
+}
+
+const DECK = [
+  {
+    name: "Марта",
+    tint: "#FFF3C9",
+    archetype: "Картограф × Підпалювачка",
+    pct: 92,
+  },
+  { name: "Hul", tint: "#FFE3DB", archetype: "Архітектор Запусків", pct: 94 },
+  { name: "Олег", tint: "#E4EAFF", archetype: "Тихий Стратег", pct: 88 },
+  {
+    name: "Kristina",
+    tint: "#E7F8EF",
+    archetype: "Диспетчерка Ясності",
+    pct: 90,
+  },
+  { name: "Valeri", tint: "#F3E9FF", archetype: "Розшифровувачка", pct: 87 },
 ];
 
-function CardPage() {
+function MiniCard({
+  card,
+  className = "",
+  style,
+}: {
+  card: (typeof DECK)[number];
+  className?: string;
+  style?: React.CSSProperties;
+}) {
   return (
-    <main className="mx-auto w-full max-w-[680px] px-4 pb-16 sm:px-6">
-      <Hero />
-      <SectionNav />
+    <div
+      className={`panel-dark w-[200px] shrink-0 overflow-hidden ${className}`}
+      style={style}
+    >
+      <div
+        className="flex items-center justify-between gap-2 border-b-2 border-ink px-3 py-2"
+        style={{ backgroundColor: card.tint }}
+      >
+        <span className="font-display text-sm font-extrabold">{card.name}</span>
+        <span className="font-mono inline-flex items-center gap-1 text-[10px] font-bold">
+          <FlameIcon size={12} />
+          {card.pct}%
+        </span>
+      </div>
+      <div className="space-y-2 px-3 py-3">
+        <p className="text-[12px] leading-snug font-semibold">
+          {card.archetype}
+        </p>
+        <div className="flex gap-[3px]" aria-hidden>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <span
+              key={i}
+              className={`h-2.5 flex-1 border-2 border-ink ${
+                i < Math.round((card.pct / 100) * 5) ? "bg-flame" : ""
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
-      {/* 01 */}
-      <div className="space-y-5 pt-8">
-        <SectionTitle index="01" title="Хто я" id="s01" />
+function CursorTag({
+  name,
+  color,
+  className = "",
+}: {
+  name: string;
+  color: string;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`pointer-events-none absolute flex items-center gap-1 motion-safe:animate-[float_3s_ease-in-out_infinite] ${className}`}
+    >
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 10 10"
+        shapeRendering="crispEdges"
+        aria-hidden
+      >
+        <g fill="#F5F6F1">
+          <rect x="1" y="1" width="1" height="7" />
+          <rect x="2" y="2" width="1" height="5" />
+          <rect x="3" y="3" width="1" height="4" />
+          <rect x="4" y="4" width="1" height="3" />
+          <rect x="5" y="5" width="1" height="2" />
+        </g>
+      </svg>
+      <span
+        className="font-mono rounded-full border-2 border-ink px-2 py-0.5 text-[10px] font-bold text-ink"
+        style={{ backgroundColor: color }}
+      >
+        {name}
+      </span>
+    </div>
+  );
+}
 
-        <Panel>
-          <BlockHeader icon={<StarIcon />} title="Архетип-мікс" />
-          <StatRow
-            label="Творець"
-            value={45}
-            note="постійно збирає нові продукти й воронки, часто власноруч із AI"
-          />
-          <StatRow
-            label="Дослідник"
-            value={31}
-            tone="ink"
-            note="тестує нові ніші, канали й монетизацію"
-          />
-          <StatRow
-            label="Мудрець"
-            value={25}
-            tone="ink"
-            note="розкладає рішення і ринок на механізми"
-          />
-        </Panel>
+const STEPS = [
+  {
+    n: "01",
+    icon: <BookIcon />,
+    lead: "Скопіюй промпт.",
+    text: "Ми дамо спеціальний промпт — одна кнопка.",
+  },
+  {
+    n: "02",
+    icon: <SpeechIcon />,
+    lead: "Встав у свій AI.",
+    text: "ChatGPT, Claude чи Gemini — той, з яким ти реально живеш. Він збере все, що помітив про тебе.",
+  },
+  {
+    n: "03",
+    icon: <StarIcon />,
+    lead: "Отримай картку.",
+    text: "Вставляєш його відповідь — і твоя сторінка готова: aionly.io/твійнік.",
+  },
+];
 
-        <Panel>
-          <BlockHeader
-            icon={<LightningIcon />}
-            title="Суперсила"
-            badge="STARTER"
-          />
-          <h4 className="font-display text-xl leading-snug font-extrabold">
-            Стискати шлях від задуму до реальності
-          </h4>
-          <p className="mt-2 text-[15px] leading-relaxed text-ink/75">
-            Там, де інші ще обговорюють MVP, він часто вже має URL
+const USES = [
+  {
+    icon: <MapIcon />,
+    lead: "Лінк у біо.",
+    text: "Замість трьох рядків опису — сторінка, після якої тебе реально розуміють.",
+  },
+  {
+    icon: <HandshakeIcon />,
+    lead: "Нетворкінг.",
+    text: "Хто ти і чим корисний — за 30 секунд, без незручного самопрезентування.",
+  },
+  {
+    icon: <HeartsIcon />,
+    lead: "Знайомства.",
+    text: "Люди бачать не фото з відпустки, а як з тобою насправді.",
+  },
+  {
+    icon: <MagnifierIcon />,
+    lead: "Про себе.",
+    text: "Побачити себе очима того, хто чув усі твої питання.",
+  },
+];
+
+const PRIVACY = [
+  "Ми ніколи не бачимо твоїх чатів — аналіз відбувається у твоєму AI.",
+  "До публікації ти бачиш кожен блок і можеш сховати чи відредагувати будь-який.",
+  "Делікатні теми приховані за замовчуванням.",
+  "Картку можна зняти з публікації або видалити будь-коли.",
+];
+
+const FAQ = [
+  {
+    q: "Який AI підтримується?",
+    a: "ChatGPT, Claude, Gemini — і будь-який інший, якому можна вставити промпт. Найкращий результат дає AI з увімкненою пам'яттю і довгою історією.",
+  },
+  {
+    q: "А якщо мій AI мене майже не знає?",
+    a: "Система чесно покаже низьку повноту контексту і поставить кілька персональних уточнень. А скоро з'явиться коротка голосова розмова, яка збере все з нуля.",
+  },
+  {
+    q: "Ви читаєте мої розмови з AI?",
+    a: "Ні. І технічно не можемо: промпт виконується у твоєму AI, у твоєму акаунті. Ми отримуємо тільки готовий структурований результат.",
+  },
+  { q: "Це безкоштовно?", a: "Так, картка і сторінка — безкоштовні." },
+  {
+    q: "Чи можна щось змінити після створення?",
+    a: "Так: кожен блок можна редагувати, ховати, показувати. Публікується тільки те, що ти лишив видимим.",
+  },
+  {
+    q: "Це якийсь психологічний тест?",
+    a: "Ні. Тут немає питань із варіантами відповідей. Це витяг того, що твій AI уже помітив за реальний час із тобою.",
+  },
+];
+
+/* ---------- page ---------- */
+
+function LandingPage() {
+  const [showBar, setShowBar] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const end = document.getElementById("s9");
+      const nearEnd = end
+        ? end.getBoundingClientRect().top < window.innerHeight
+        : false;
+      setShowBar(window.scrollY > 520 && !nearEnd);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
+    <div className="stage min-h-screen">
+      <header className="sticky top-0 z-20 border-b border-paper/10 bg-[#14151A]/95 backdrop-blur">
+        <div className="mx-auto flex w-full max-w-[720px] items-center justify-between px-4 py-3 sm:px-6">
+          <span className="font-display text-base font-extrabold tracking-tight text-paper">
+            AIONLY
+          </span>
+          <a
+            href="/start"
+            className="font-mono flex min-h-[44px] items-center text-[12px] text-paper"
+          >
+            Вхід
+          </a>
+        </div>
+      </header>
+
+      <main className="mx-auto w-full max-w-[720px] px-4 pb-28 sm:px-6">
+        {/* S1 HERO */}
+        <section className="pt-10 text-center">
+          <p className="font-mono text-[11px] font-bold tracking-[0.16em] text-flame uppercase">
+            Ранній доступ — AI-картки
           </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Tag>Швидке прототипування</Tag>
-            <Tag>Продуктова декомпозиція</Tag>
-            <Tag>Міст між бізнесом і технікою</Tag>
-          </div>
-          <p className="font-mono mt-4 border-t-2 border-ink/10 pt-3 text-[12px] leading-relaxed">
-            Продуктове мислення + сам доводить до софту. Зазвичай беруть щось
-            одне.
+          <h1 className="font-display mx-auto mt-4 max-w-[18ch] text-[32px] leading-[1.1] font-extrabold text-paper sm:text-5xl">
+            Що твій AI <Marker>насправді</Marker> про тебе знає?
+          </h1>
+          <p className="mx-auto mt-4 max-w-[34ch] text-[15px] leading-relaxed text-paper/75">
+            Твій AI знає тебе краще за будь-яку анкету. AIONLY перетворює це на
+            картку — сторінку-самопрезентацію, якою хочеться ділитися.
           </p>
-        </Panel>
 
-        <Panel>
-          <BlockHeader icon={<SplitMaskIcon />} title="Суперечності" />
-          <p className="text-lg leading-snug font-semibold">
-            <Marker>Хоче свободи — і сам створює собі тиск</Marker>
-          </p>
-          <div className="mt-4">
-            <List
-              items={[
-                "Будує дуже швидко — масштабує значно повільніше",
-                "Добре рахує ризики — але регулярно ставить на себе",
-              ]}
+          {/* deck */}
+          <div className="relative mt-10">
+            <div className="relative z-10 -mb-7 flex justify-center px-6">
+              <Cta className="w-full max-w-[320px]" />
+            </div>
+            <div className="-mx-4 flex snap-x snap-mandatory items-center gap-3 overflow-x-auto px-[calc(50%-100px)] pt-4 pb-6 [scrollbar-width:none] sm:-mx-6 [&::-webkit-scrollbar]:hidden">
+              {DECK.map((c, i) => {
+                const rot = [-6, 0, 6, -4, 4][i];
+                const dy = [10, 0, 12, 6, 14][i];
+                const center = c.name === "Hul";
+                return (
+                  <MiniCard
+                    key={c.name}
+                    card={c}
+                    className={`snap-center ${center ? "scale-[1.12]" : ""}`}
+                    style={{ transform: `rotate(${rot}deg) translateY(${dy}px)` }}
+                  />
+                );
+              })}
+            </div>
+            <CursorTag
+              name="Марта"
+              color="#3ECF8E"
+              className="top-2 left-2 hidden sm:flex"
+            />
+            <CursorTag
+              name="Олег"
+              color="#4C6FFF"
+              className="right-2 bottom-8 hidden sm:flex"
             />
           </div>
-        </Panel>
 
-        <Panel>
-          <BlockHeader icon={<FlameIcon />} title="Панель приладів" />
-          <div className="divide-y-2 divide-ink/10">
-            <StatRow label="Амбіція" value={97} />
-            <StatRow label="Цікавість" value={95} />
-            <StatRow label="Автономія" value={94} />
-            <StatRow label="Апетит до ризику" value={78} />
-            <StatRow label="Соціальна батарейка" value={58} />
-          </div>
-        </Panel>
-
-        <Panel>
-          <BlockHeader icon={<CircuitBrainIcon />} title="Його запити до AI" />
-          <div className="divide-y-2 divide-ink/10">
-            <StatRow label="Продакт-спаринг партнер" value={27} tone="ink" />
-            <StatRow label="Психологічний дебагер" value={22} tone="ink" />
-            <StatRow label="Кар'єрний упаковщик" value={17} tone="ink" />
-          </div>
-        </Panel>
-
-        <Panel>
-          <BlockHeader icon={<CrystalBallIcon />} title="AI-пророцтво" />
-          <Quote>
-            Ти заробиш найбільше не тоді, коли вигадаєш найкращий продукт, а
-            коли витримаєш достатньо довго з одним хорошим.
-          </Quote>
-        </Panel>
-
-        <Panel>
-          <BlockHeader icon={<MagnifierIcon />} title="Приховане питання" />
-          <Quote>
-            Чи маю я цінність, якщо прямо зараз нічого великого не доводжу?
-          </Quote>
-          <p className="font-mono mt-3 text-[12px] leading-relaxed text-ink/70">
-            Наступний рівень — використовувати стабільність як платформу.
+          <p className="font-mono mt-2 text-[10px] tracking-[0.14em] text-paper/55 uppercase">
+            Кожна картка — справжня людина, описана її AI
           </p>
-        </Panel>
-      </div>
-
-      {/* 02 */}
-      <div className="space-y-5 pt-12">
-        <SectionTitle index="02" title="Як я думаю" id="s02" />
-
-        <Panel>
-          <BlockHeader icon={<CircuitBrainIcon />} title="Машина зв'язків" />
-          <p className="text-[15px] leading-relaxed">
-            Швидко з'єднує продукт, психологію, економіку і власну поведінку в
-            одну модель
+          <p className="font-mono mt-6 text-[11px] text-paper/55">
+            безкоштовно · ~4 хвилини · ти вирішуєш, що публічне
           </p>
-          <p className="font-mono mt-3 rounded-md border-2 border-blue px-3 py-2 text-[12px] leading-relaxed text-blue">
-            AI-профіль → віральність → психологія мотивації → кар'єрна стратегія
-          </p>
-          <p className="mt-3 text-[15px] leading-relaxed text-ink/75">
-            А що, якщо це не окрема проблема, а одна система?
-          </p>
-        </Panel>
+        </section>
 
-        <Panel>
-          <BlockHeader
-            icon={<SplitMaskIcon />}
-            title="Інтелектуальна пастка"
-          />
-          <p className="text-lg leading-snug font-semibold">
-            Мислення інколи стає заміною ставки
-          </p>
-          <p className="mt-2 text-[15px] leading-relaxed text-ink/75">
-            Ще одна модель ситуації здається прогресом — хоча рішення досі не
-            прийнято.
-          </p>
-        </Panel>
-
-        <Panel>
-          <BlockHeader icon={<RadarIcon />} title="Зараз" />
-          <p className="font-display text-2xl leading-tight font-black">
-            Менше розпорошення
-          </p>
-          <div className="mt-4 space-y-2">
-            <p className="text-[15px]">
-              <span className="font-mono text-[11px] font-bold tracking-[0.14em] uppercase text-ink/55">
-                Будую{" "}
-              </span>
-              AI-профіль і compatibility network
-            </p>
-            <p className="text-[15px]">
-              <span className="font-mono text-[11px] font-bold tracking-[0.14em] uppercase text-ink/55">
-                Досліджую{" "}
-              </span>
-              органічну дистрибуцію й віральність
-            </p>
-          </div>
-        </Panel>
-      </div>
-
-      {/* 03 */}
-      <div className="space-y-5 pt-12">
-        <SectionTitle index="03" title="Що я вмію" id="s03" />
-
-        <Panel>
-          <BlockHeader icon={<MapIcon />} title="Мапа знань" />
+        {/* S2 */}
+        <section className="pt-16">
+          <StageTitle index="01" title="Три хвилини. Без анкет на сто питань." />
           <div className="space-y-4">
-            {[
-              {
-                tier: "Щоденна практика",
-                tone: "blue" as const,
-                tags: [
-                  "AI-assisted product work",
-                  "product discovery",
-                  "Next.js",
-                  "Supabase",
-                  "аналітика воронок",
-                ],
-              },
-              {
-                tier: "Впевнений рівень",
-                tone: "ink" as const,
-                tags: ["Scrum", "Jira", "Meta Ads", "Stripe"],
-              },
-              {
-                tier: "Небезпечний",
-                tone: "ink" as const,
-                tags: ["SQL", "Cloudflare Workers", "n8n"],
-              },
-              {
-                tier: "Початківець",
-                tone: "ink" as const,
-                tags: ["токеноміка", "iOS-дистрибуція"],
-              },
-            ].map((t) => (
-              <div key={t.tier}>
-                <p className="font-mono mb-2 text-[11px] font-bold tracking-[0.14em] uppercase text-ink/55">
-                  {t.tier}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {t.tags.map((tag) => (
-                    <Tag key={tag} tone={t.tone}>
-                      {tag}
-                    </Tag>
-                  ))}
+            {STEPS.map((s) => (
+              <WhitePanel key={s.n}>
+                <div className="flex items-start gap-3">
+                  <span className="font-mono text-2xl font-bold text-ink/35">
+                    {s.n}
+                  </span>
+                  <span className="mt-1 shrink-0">{s.icon}</span>
+                  <p className="text-[15px] leading-relaxed">
+                    <span className="font-semibold">{s.lead}</span> {s.text}
+                  </p>
                 </div>
+              </WhitePanel>
+            ))}
+          </div>
+          <p className="font-mono mt-4 text-[11px] leading-relaxed text-paper/55">
+            Твої чати нікуди не передаються. Промпт працює у твоєму AI — до нас
+            приходить лише готовий результат.
+          </p>
+        </section>
+
+        {/* S3 */}
+        <section className="pt-16">
+          <StageTitle
+            index="02"
+            title={
+              <>
+                Не біо на три рядки. <Marker>Документ</Marker> про тебе.
+              </>
+            }
+          />
+          <div className="space-y-4">
+            <div
+              className="panel-dark p-5 shadow-[4px_4px_0_var(--color-yellow)]"
+              style={{ backgroundColor: "#FFF3C9" }}
+            >
+              <BlockHeader icon={<SplitMaskIcon />} title="Суперечності" />
+              <p className="text-lg leading-snug font-semibold">
+                Хоче свободи — і сам створює собі тиск
+              </p>
+              <div className="mt-4">
+                <List
+                  items={[
+                    "Будує дуже швидко — масштабує значно повільніше",
+                    "Добре рахує ризики — але регулярно ставить на себе",
+                  ]}
+                />
               </div>
+            </div>
+
+            <WhitePanel>
+              <BlockHeader icon={<FlameIcon />} title="Панель приладів" />
+              <div className="divide-y-2 divide-ink/10">
+                <StatRow label="Амбіція" value={97} />
+                <StatRow label="Цікавість" value={95} />
+                <StatRow label="Автономія" value={94} />
+              </div>
+            </WhitePanel>
+
+            <div
+              className="panel-dark p-5 shadow-[4px_4px_0_var(--color-flame)]"
+              style={{ backgroundColor: "#FFE3DB" }}
+            >
+              <BlockHeader icon={<CrystalBallIcon />} title="AI-пророцтво" />
+              <Quote>
+                Ти заробиш найбільше не тоді, коли вигадаєш найкращий продукт, а
+                коли витримаєш достатньо довго з одним хорошим.
+              </Quote>
+            </div>
+          </div>
+
+          <p className="font-mono mt-4 text-[11px] text-paper/55">
+            Кожен блок можна редагувати або сховати до публікації.
+          </p>
+
+          <WhitePanel className="mt-4">
+            <p className="text-[15px] leading-relaxed">
+              Постав у біо Instagram, TikTok чи LinkedIn — і тебе нарешті
+              зрозуміють з першого лінка.
+            </p>
+          </WhitePanel>
+
+          <div className="mt-6 flex flex-col items-center gap-3">
+            <Cta className="w-full max-w-[320px]" />
+            <Link to="/hul" className="text-[14px] text-paper underline">
+              Подивитись живу картку →
+            </Link>
+          </div>
+        </section>
+
+        {/* S4 */}
+        <section className="pt-16">
+          <StageTitle index="03" title="Одна картка — різні двері." />
+          <div className="grid gap-4 sm:grid-cols-2">
+            {USES.map((u) => (
+              <WhitePanel key={u.lead}>
+                <span>{u.icon}</span>
+                <p className="mt-3 text-[15px] leading-relaxed">
+                  <span className="font-semibold">{u.lead}</span> {u.text}
+                </p>
+              </WhitePanel>
             ))}
           </div>
-        </Panel>
+        </section>
 
-        <Panel>
-          <BlockHeader icon={<HandshakeIcon />} title="Приношу · шукаю допомогу" />
-          <ColumnPair
-            left={{
-              title: "Приношу",
-              items: [
-                "туманна ідея → конкретний MVP",
-                "мова бізнесу і розробки",
-                "воронка від кліку до монетизації",
-                "ownership за запуск",
-              ],
-            }}
-            right={{
-              title: "Шукаю допомогу",
-              items: [
-                "сильна дистрибуція",
-                "фокус після запуску",
-                "контрбаланс новим напрямам",
-              ],
-            }}
-          />
-        </Panel>
-      </div>
-
-      {/* 04 */}
-      <div className="space-y-5 pt-12">
-        <SectionTitle index="04" title="Як зі мною" id="s04" />
-
-        <Panel>
-          <BlockHeader icon={<BookIcon />} title="Інструкція" />
-          <ColumnPair
-            left={{
-              title: "Працює",
-              items: [
-                "реальна проблема замість нетворкінгу",
-                "аргументи й дані",
-                "автономія при чіткому результаті",
-                "швидко до експерименту",
-              ],
-            }}
-            right={{
-              title: "Не спрацює",
-              items: [
-                "мікроменеджмент → падіння залученості",
-                "процеси без результату → шукає коротший шлях",
-                '"так прийнято" → негайне "чому?"',
-              ],
-            }}
-          />
-          <p className="font-mono mt-4 border-t-2 border-ink/10 pt-3 text-[12px] leading-relaxed">
-            Якщо розмова пережила десять хвилин — наприкінці може бути MVP.
+        {/* S5 */}
+        <section className="pt-16 text-center">
+          <h2 className="font-display mx-auto max-w-[16ch] text-3xl leading-tight font-extrabold text-paper sm:text-4xl">
+            Анкети питають. Твій AI — <Marker>бачив</Marker>.
+          </h2>
+          <p className="mx-auto mt-5 max-w-[38ch] text-[15px] leading-relaxed text-paper/75">
+            Будь-яка анкета отримує твою відредаговану версію: 20 питань — 20
+            обережних відповідей. А твій AI місяцями бачив справжнє: які питання
+            ти ставиш о другій ночі, над чим застрягаєш, що тебе запалює. AIONLY
+            нічого не вигадує: якщо даних бракує — блок лишиться порожнім.
+            Порожнє поле краще за правдоподібний фейк.
           </p>
-        </Panel>
+        </section>
 
-        <Panel>
-          <BlockHeader icon={<SpeechIcon />} title="Теми" />
-          <div className="flex flex-wrap gap-2">
-            {[
-              "consumer AI",
-              "запуски з нуля",
-              "growth і unit economics",
-              "психологія",
-              "механіка зв'язків",
-              "продуктова кар'єра",
-              "футбол",
-            ].map((t) => (
-              <span
-                key={t}
-                className="font-mono inline-flex items-center gap-1.5 rounded-md border-2 border-ink/25 px-2 py-1 text-[11px]"
-              >
-                <SpeechIcon size={12} />
-                {t}
-              </span>
-            ))}
+        {/* S6 */}
+        <section className="pt-16">
+          <StageTitle index="04" title="AI пропонує. Ти вирішуєш." />
+          <WhitePanel>
+            <ul className="space-y-3">
+              {PRIVACY.map((p) => (
+                <li key={p} className="flex items-start gap-2.5 text-[15px]">
+                  <CheckIcon size={16} className="mt-1 shrink-0" />
+                  <span className="leading-relaxed">{p}</span>
+                </li>
+              ))}
+            </ul>
+          </WhitePanel>
+        </section>
+
+        {/* S7 */}
+        <section className="pt-16">
+          <StageTitle index="05" title="Картка — це двері." />
+          <div className="relative flex items-center justify-center gap-2">
+            <MiniCard card={DECK[0]!} />
+            <span className="h-0 w-8 shrink-0 border-t-2 border-dashed border-paper/40" />
+            <MiniCard card={DECK[2]!} />
           </div>
-          <p className="mt-4 text-[15px] leading-relaxed text-ink/75">
-            Найгірший старт: «Просто розкажи трохи про себе».
-          </p>
-        </Panel>
-
-        <Panel>
-          <BlockHeader icon={<BatteryIcon />} title="Заряджає · виснажує" />
-          <ColumnPair
-            left={{
-              title: "Заряджає",
-              items: [
-                "прогрес за короткий цикл",
-                "створення з нуля",
-                "сильна гіпотеза",
-                "чесна дискусія",
-              ],
-            }}
-            right={{
-              title: "Виснажує",
-              items: [
-                "робота без сигналу прогресу",
-                "процеси заради процесів",
-                "забагато незакритих напрямів",
-              ],
-            }}
-          />
-        </Panel>
-
-        <Panel>
-          <BlockHeader icon={<DiceIcon />} title="Hobby DNA" />
-          <List
-            items={[
-              "pet-projects — спосіб життя",
-              "бокс — частина історії",
-              "гори — періодично серйозно",
-              "футбол — стежить",
-            ]}
-          />
-          <p className="font-mono mt-4 border-t-2 border-ink/10 pt-3 text-[12px]">
-            7.4/10 · гори + виклик + новий проєкт
-          </p>
-        </Panel>
-      </div>
-
-      {/* 05 */}
-      <div className="space-y-5 pt-12">
-        <SectionTitle index="05" title="Кого я шукаю" id="s05" />
-
-        <Panel>
-          <BlockHeader icon={<RadarIcon />} title="Шукаю зараз" />
-          <div className="rounded-md border-2 border-ink bg-paper p-3.5">
-            <p className="font-mono text-[12px] leading-relaxed">
-              <span className="text-flame">&gt; </span>
-              Сильний growth-партнер, який доводить consumer-продукт від MVP до
-              стабільного каналу
-            </p>
-          </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <Tag tone="blue">growth-marketing</Tag>
-            <Tag tone="blue">consumer-ai</Tag>
-            <Tag tone="blue">distribution</Tag>
-          </div>
-        </Panel>
-
-        <Panel>
-          <BlockHeader icon={<ChestIcon />} title="Запропонувати" />
-          <ul className="space-y-2.5">
-            {[
-              "За вечір перевірити дивну гіпотезу",
-              "Тренування або розмова про спорт",
-              "Маршрут у горах",
-              "Розібрати живу воронку",
-              "Потестити новий AI-інструмент",
-            ].map((t) => (
-              <li key={t} className="flex items-start gap-2.5 text-[15px]">
-                <CheckIcon size={16} className="mt-1 shrink-0" />
-                <span>{t}</span>
-              </li>
-            ))}
-          </ul>
-        </Panel>
-
-        <Panel>
-          <BlockHeader icon={<HeartsIcon />} title="Яких людей" />
-          <p className="text-[15px] leading-relaxed">
-            Люди, які реально щось будують; партнери по інтелектуальному
-            пінг-понгу, а не фанати погоджуватися.
-          </p>
-        </Panel>
-      </div>
-
-      {/* 06 */}
-      <div className="space-y-5 pt-12">
-        <SectionTitle index="06" title="Епілог" id="s06" />
-
-        <Panel>
-          <BlockHeader icon={<ScrollIcon />} title="Якщо коротко" />
-          <div className="font-mono space-y-2.5 text-[12px] leading-relaxed">
-            <p>
-              <span className="font-bold">Суперсила:</span> невизначеність →
-              структура → продукт
-            </p>
-            <p>
-              <span className="font-bold">Пастка:</span> нове цікавіше саме
-              тоді, коли старому треба терпіння
-            </p>
-            <p>
-              <span className="font-bold">Челендж:</span> талант стартів →
-              накопичувальний результат
-            </p>
-          </div>
-        </Panel>
-
-        <Panel>
-          <BlockHeader
-            icon={<HandshakeIcon />}
-            title="Ми з тобою, скоріше за все…"
-          />
-          <ul className="space-y-2.5">
-            {[
-              "почали б обговорювати ідею й відкрили б код",
-              "посперечалися б про реальний попит",
-              "домовились би щось конкретне перевірити разом",
-            ].map((t) => (
-              <li key={t} className="flex items-start gap-2.5 text-[15px]">
-                <CheckIcon size={16} className="mt-1 shrink-0" />
-                <span>{t}</span>
-              </li>
-            ))}
-          </ul>
-        </Panel>
-      </div>
-
-      {/* Footer CTA */}
-      <div className="pt-12">
-        <a
-          href="#s01"
-          className="font-display flex min-h-[56px] items-center justify-center rounded-2xl border-2 border-ink bg-white px-5 py-4 text-center text-base font-extrabold shadow-[3px_3px_0_var(--color-ink)] transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
-        >
-          Цікаво, що твій AI знає про тебе? Створи свою картку →
-        </a>
-        <p className="font-mono mt-4 text-center text-[11px] leading-relaxed text-ink/60">
-          Жодне речення на картці не вигадане. Усе — помічено AI, з яким ти
-          говориш щодня.
-        </p>
-      </div>
-    </main>
-  );
-}
-
-function Hero() {
-  return (
-    <section className="relative -mx-4 overflow-hidden sm:-mx-6">
-      <div className="relative flex h-[55vh] min-h-[420px] flex-col justify-end bg-gradient-to-b from-[#e9eae4] via-[#e2e4dd] to-[#cfd1c9]">
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 pb-24">
-          <AvatarIcon size={72} className="text-ink/45" />
-          <span className="font-mono text-[11px] tracking-[0.18em] uppercase text-ink/45">
-            AI-фото
-          </span>
-        </div>
-
-        <div className="relative bg-gradient-to-t from-ink/85 via-ink/60 to-transparent px-5 pt-16 pb-6 sm:px-6">
-          <span className="font-mono inline-block rounded-md border-2 border-white/70 px-2 py-1 text-[10px] font-bold tracking-[0.14em] text-white uppercase">
-            Публічний AI-профіль
-          </span>
-          <h1 className="font-display mt-3 text-5xl leading-none font-black text-white sm:text-6xl">
-            Hul
-          </h1>
-          <p className="font-display mt-2 text-base font-bold text-white">
-            ✦ Архітектор Запусків
-          </p>
-          <p className="mt-1.5 text-[15px] leading-snug text-white/80">
-            Він швидко перетворює нечітку ідею на працюючий продукт
-          </p>
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            <span className="font-mono text-[11px] text-white/75">
-              AI · Продукти · Психологія · Kyiv
+          <WhitePanel className="relative mt-6">
+            <span className="font-mono absolute -top-3 right-4 rounded-md border-2 border-ink bg-paper px-2 py-0.5 text-[10px] font-bold tracking-[0.12em] uppercase">
+              Скоро
             </span>
-          </div>
-          <div className="mt-4">
-            <FlameBadge>94% AI-контекст</FlameBadge>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
+            <p className="text-[15px] leading-relaxed">
+              Далі — порівняння сумісності з іншою карткою і AI, який сам
+              знаходить людей, що тобі підходять. Без стрічки і свайпів.
+            </p>
+          </WhitePanel>
+        </section>
 
-function SectionNav() {
-  return (
-    <nav className="sticky top-0 z-10 -mx-4 border-b-2 border-ink/10 bg-paper/95 px-4 py-2.5 backdrop-blur sm:-mx-6 sm:px-6">
-      <div className="flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {NAV.map((n) => (
-          <a
-            key={n.id}
-            href={`#${n.id}`}
-            className="font-mono flex shrink-0 items-center gap-1.5 rounded-md border-2 border-ink/20 px-2.5 py-1.5 text-[11px] whitespace-nowrap transition-colors hover:border-ink"
-          >
-            <span className="font-bold text-flame">{n.i}</span>
-            <span>{n.label}</span>
-          </a>
-        ))}
+        {/* S8 */}
+        <section className="pt-16">
+          <StageTitle index="06" title="Питання, які всі ставлять." />
+          <div className="space-y-3">
+            {FAQ.map((f) => (
+              <details key={f.q} className="panel-dark p-4">
+                <summary className="flex min-h-[36px] cursor-pointer items-center text-[15px] font-semibold">
+                  {f.q}
+                </summary>
+                <p className="mt-3 text-[15px] leading-relaxed text-ink/80">
+                  {f.a}
+                </p>
+              </details>
+            ))}
+          </div>
+        </section>
+
+        {/* S9 */}
+        <section id="s9" className="pt-16 text-center">
+          <h2 className="font-display mx-auto max-w-[20ch] text-2xl leading-tight font-extrabold text-paper sm:text-3xl">
+            Твій AI давно склав про тебе думку. Подивись її.
+          </h2>
+          <div className="mt-6 flex justify-center">
+            <Cta className="w-full max-w-[320px]" />
+          </div>
+          <p className="font-mono mx-auto mt-4 max-w-[40ch] text-[11px] leading-relaxed text-paper/55">
+            Жодне речення на картці не вигадане. Усе — помічено AI, з яким ти
+            говориш щодня.
+          </p>
+        </section>
+
+        {/* S10 */}
+        <footer className="pt-14">
+          <p className="font-mono text-center text-[11px] text-paper/55">
+            AIONLY · Умови · Приватність · hello@aionly.io
+          </p>
+        </footer>
+      </main>
+
+      {/* sticky mobile CTA */}
+      <div
+        className={`fixed inset-x-0 bottom-0 z-30 border-t border-paper/15 bg-[#14151A] px-4 py-3 transition-opacity sm:hidden ${
+          showBar ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+      >
+        <Cta />
       </div>
-    </nav>
+    </div>
   );
 }
