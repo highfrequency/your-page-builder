@@ -267,7 +267,10 @@ function LandingPage() {
     const el = deckRef.current;
     if (!el) return;
     const center = () => {
-      el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2;
+      const target = el.children[1] as HTMLElement | undefined;
+      if (!target) return;
+      el.scrollLeft =
+        target.offsetLeft - (el.clientWidth - target.offsetWidth) / 2;
     };
     const id = requestAnimationFrame(() => requestAnimationFrame(center));
     return () => cancelAnimationFrame(id);
